@@ -1,0 +1,19 @@
+# Environment
+.env
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Model artifacts (regenerar con BuildDataset + TrainModel)
+data/model.pkl
+data/dataset.csv
+
+# Generated output
+*.pdf
+
+# IDE
+.vscode/
+.idea/
+*.swp
