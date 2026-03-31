@@ -1,66 +1,66 @@
 # NBA Game Predictor
 
-Sistema de predicción de partidos NBA que combina un modelo de machine learning con un motor de scoring ponderado multifactor. Consume datos en tiempo real desde la NBA API, ESPN y opcionalmente Vegas odds.
+NBA game prediction system that combines a machine learning model with a multi-factor weighted scoring engine. Consumes real-time data from the NBA API, ESPN, and optionally Vegas odds.
 
 ---
 
-## Características
+## Features
 
-- **Modelo ML**: HistGradientBoostingClassifier entrenado sobre 4 temporadas (2021-22 a 2024-25)
-- **Scoring multifactor**: 13 factores ponderados como fallback o modo independiente
-- **Datos en tiempo real**: forma reciente, stats avanzadas, lesiones (ESPN), fatiga y travel factor
-- **Interfaz CLI** (`main.py`) e **interfaz gráfica** (`GUI.py` con Tkinter)
-- **Exportación a PDF** con estadísticas por partido (requiere `reportlab`)
-- **Integración con Vegas odds** vía The Odds API (opcional)
+- **ML Model**: HistGradientBoostingClassifier trained on 4 seasons (2021-22 to 2024-25)
+- **Multi-factor scoring**: 13 weighted factors as fallback or standalone mode
+- **Real-time data**: recent form, advanced stats, injuries (ESPN), fatigue and travel factor
+- **CLI interface** (`main.py`) and **graphical interface** (`GUI.py` with Tkinter)
+- **PDF export** with per-game statistics (requires `reportlab`)
+- **Vegas odds integration** via The Odds API (optional)
 
 ---
 
-## Estructura
+## Structure
 
 ```
 NBA-Predictor/
-├── main.py                  # CLI interactivo
-├── GUI.py                   # Interfaz gráfica con Tkinter
+├── main.py                # Interactive CLI
+├── GUI.py                 # Graphical interface with Tkinter
 ├── data/
-│   ├── dataset.csv          # Dataset histórico (generado)
-│   └── model.pkl            # Modelo entrenado (generado)
+│   ├── dataset.csv        # Historical dataset (generated)
+│   └── model.pkl          # Trained model (generated)
 └── Servicios/
-    ├── api_utils.py         # Decorator de retry con backoff exponencial
-    ├── GetSchedule.py       # Próximo partido entre dos equipos (ScoreboardV2)
-    ├── GetTier1.py          # Forma reciente, H2H, splits local/visitante
-    ├── GetTier2.py          # Stats avanzadas, shooting, defensa, clutch
-    ├── GetTier3.py          # Lesiones (ESPN), fatiga, minutos por jugador
-    ├── Predict.py           # Inferencia con model.pkl + ajuste por lesiones
-    ├── TrainModel.py        # Pipeline de entrenamiento y evaluación
-    ├── BuildDataset.py      # Construcción del dataset histórico
-    ├── team_locations.py    # Coordenadas y zonas horarias de los 30 equipos
-    └── vegas_odds.py        # Integración con The Odds API
+    ├── api_utils.py       # Retry decorator with exponential backoff
+    ├── GetSchedule.py     # Next game between two teams (ScoreboardV2)
+    ├── GetTier1.py        # Recent form, H2H, home/away splits
+    ├── GetTier2.py        # Advanced stats, shooting, defense, clutch
+    ├── GetTier3.py        # Injuries (ESPN), fatigue, minutes per player
+    ├── Predict.py         # Inference with model.pkl + injury adjustment
+    ├── TrainModel.py      # Training and evaluation pipeline
+    ├── BuildDataset.py    # Historical dataset construction
+    ├── team_locations.py  # Coordinates and time zones for all 30 teams
+    └── vegas_odds.py      # Integration with The Odds API
 ```
 
 ---
 
-## Instalación
+## Installation
 
 ```bash
 python -m venv .venv
-source .venv/bin/activate   # Windows: .venv\Scripts\activate
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### Dependencias principales
+### Main dependencies
 
-| Paquete | Uso |
+| Package | Usage |
 |---|---|
-| `nba_api` | Estadísticas oficiales NBA |
-| `pandas` | Manipulación de datos |
-| `scikit-learn` | Modelo ML y evaluación |
-| `joblib` | Serialización del modelo |
-| `requests` | ESPN API y Vegas odds |
-| `reportlab` | Exportación a PDF (opcional) |
+| `nba_api` | Official NBA statistics |
+| `pandas` | Data manipulation |
+| `scikit-learn` | ML model and evaluation |
+| `joblib` | Model serialization |
+| `requests` | ESPN API and Vegas odds |
+| `reportlab` | PDF export (optional) |
 
 ---
 
-## Uso rápido
+## Quick start
 
 ### CLI
 
@@ -68,7 +68,7 @@ pip install -r requirements.txt
 python main.py
 ```
 
-Pedirá el nombre de los dos equipos y mostrará la predicción con el desglose de factores.
+It will prompt for the two team names and display the prediction with a factor breakdown.
 
 ### GUI
 
@@ -76,71 +76,71 @@ Pedirá el nombre de los dos equipos y mostrará la predicción con el desglose 
 python GUI.py
 ```
 
-Carga los partidos del día y ejecuta predicciones en paralelo con threading.
+Loads the day's games and runs predictions in parallel using threading.
 
 ---
 
-## Entrenar el modelo
+## Training the model
 
-El modelo se entrena desde cero con datos históricos de la NBA API.
+The model is trained from scratch using historical data from the NBA API.
 
 ```bash
-# 1. Construir el dataset (puede tardar varios minutos por los rate limits)
+# 1. Build the dataset (may take several minutes due to rate limits)
 python Servicios/BuildDataset.py
 
-# 2. Entrenar y guardar el modelo
+# 2. Train and save the model
 python Servicios/TrainModel.py
 ```
 
-El dataset incluye 4 temporadas con features rolling de 10 y 5 partidos, stats de temporada en modo expanding (sin data leakage), schedule strength, travel factor y head-to-head ratio.
+The dataset includes 4 seasons with 10- and 5-game rolling features, season stats in expanding mode (no data leakage), schedule strength, travel factor, and head-to-head ratio.
 
 ---
 
-## Variables de entorno
+## Environment variables
 
-Crea un archivo `.env` en la raíz del proyecto:
+Create a `.env` file in the project root:
 
 ```
-ODDS_API_KEY=tu_api_key_aqui
+ODDS_API_KEY=your_api_key_here
 ```
 
-La clave es opcional. Sin ella el sistema funciona normalmente, sin mostrar líneas de Vegas. Se puede obtener en [the-odds-api.com](https://the-odds-api.com) (tier gratuito: 500 peticiones/mes).
+The key is optional. Without it the system works normally, without displaying Vegas lines. It can be obtained at [the-odds-api.com](https://the-odds-api.com) (free tier: 500 requests/month).
 
 ---
 
-## Arquitectura del pipeline
+## Pipeline architecture
 
 ```
 nba_api / ESPN / Odds API
-        │
-        ├── GetTier1  →  forma reciente, H2H, splits, travel
-        ├── GetTier2  →  stats avanzadas, shooting, defensa
-        └── GetTier3  →  lesiones, fatiga, minutos por jugador
-                │
-                ├── Predict.py     → inferencia ML + ajuste lesiones
-                └── calcular_prediccion()  → scoring ponderado (fallback)
+ │
+ ├── GetTier1 → recent form, H2H, splits, travel
+ ├── GetTier2 → advanced stats, shooting, defense
+ └── GetTier3 → injuries, fatigue, minutes per player
+ │
+ ├── Predict.py → ML inference + injury adjustment
+ └── calculate_prediction() → weighted scoring (fallback)
 ```
 
-### Features del modelo (11)
+### Model features (11)
 
-| Feature | Tipo |
+| Feature | Type |
 |---|---|
-| `diff_win_rate_10j` | Diferencial tasa de victorias (10 partidos) |
-| `diff_pt_diff_10j` | Diferencial de puntos |
-| `diff_pts_allowed_10j` | Diferencial de puntos permitidos |
-| `diff_season_def_rtg` | Diferencial Defensive Rating de temporada |
-| `diff_schedule_strength` | Diferencial de dificultad del calendario |
-| `away_rest_days` | Días de descanso del visitante |
-| `away_fatigue_7d` | Partidos del visitante en últimos 7 días |
-| `home_b2b` | ¿El local juega back-to-back? |
-| `home_rest_days` | Días de descanso del local |
-| `travel_factor` | Factor de fatiga por viaje (distancia + zona horaria) |
-| `h2h_ratio` | Ratio de victorias en enfrentamientos directos |
+| `diff_win_rate_10j` | Win rate differential (10 games) |
+| `diff_pt_diff_10j` | Point differential |
+| `diff_pts_allowed_10j` | Points allowed differential |
+| `diff_season_def_rtg` | Season Defensive Rating differential |
+| `diff_schedule_strength` | Schedule strength differential |
+| `away_rest_days` | Away team rest days |
+| `away_fatigue_7d` | Away team games in last 7 days |
+| `home_b2b` | Is the home team playing back-to-back? |
+| `home_rest_days` | Home team rest days |
+| `travel_factor` | Travel fatigue factor (distance + time zone) |
+| `h2h_ratio` | Head-to-head win ratio |
 
 ---
 
-## Notas
+## Notes
 
-- Los rate limits de la NBA API (stats.nba.com) requieren delays de ~0.6s entre llamadas. Una predicción completa tarda aproximadamente 60 segundos.
-- El modelo se entrena con un split temporal: las temporadas anteriores a 2024-25 como train y 2024-25 como test.
-- El ajuste por lesiones se aplica en espacio log-odds sobre la probabilidad del modelo ML para mantener el rango [0, 1].
+- NBA API (stats.nba.com) rate limits require ~0.6s delays between calls. A full prediction takes approximately 60 seconds.
+- The model is trained with a temporal split: seasons prior to 2024-25 as train and 2024-25 as test.
+- The injury adjustment is applied in log-odds space over the ML model probability to maintain the [0, 1] range.
